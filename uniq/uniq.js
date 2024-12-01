@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os')
 
 const arguments = {
     '-c': 'count',
@@ -9,9 +10,9 @@ const arguments = {
     '-i': 'ignore',
     '-ignore-case': 'ignore',
     '-f': 'skip-field',
-    '-skip-field=N': 'skip-field',
+    '-skip-field': 'skip-field',
     '-s': 'skip-char',
-    '-skin-char=N': 'skip-char',
+    '-skip-char': 'skip-char',
     '-u': 'unique',
     '-unique': 'unique'
 }
@@ -20,13 +21,47 @@ const args = process.argv.slice(2);
 
 const inputFile = args.pop();
 
-const inputArgs = args.map((arg) => arguments[arg]);
+if(arguments[inputFile]){
+    console.log('No Input File Selected')
+    process.exit(1)
+}
 
-const data = fs.readFileSync(path.join(__dirname, inputFile), 'utf8');
+const inputArgs = args.map((arg, index) => {
+    switch(arg){
+        case '-f':
+        case '-skip-field':
+        case '-s':
+        case '-skip-char':
+            if(!Number(args[index+1])){
+                console.log(`No Option for ${arguments[arg]}`)
+                process.exit(1)
+            }
+            return arguments[arg]+'='+args[index+1]
+    }
+    return arguments[arg]
+}).filter(Boolean);
 
-let newData = new Array(...new Set(data.split('\n').map((str) => str !== '' ? str : undefined).filter(Boolean)));
+let data = fs.readFileSync(path.resolve(inputFile), 'utf8');
+
+let newData;
+
+// skipping first N fields
+
+if(inputArgs.filter((args)=>String(args).startsWith('skip-field')).length > 0){
+    const options = inputArgs.filter((args)=>String(args).startsWith('skip-field'))[0].split('=')[1]
+    data = data.split('\n').splice(options).join('\n')
+}
+
+// skipping first N characters
+
+if(inputArgs.filter((args)=>String(args).startsWith('skip-char')).length > 0){
+    const options = inputArgs.filter((args)=>String(args).startsWith('skip-char'))[0].split('=')[1]
+    data = data.split('\n').map((str)=>str.slice(options)).filter(Boolean).join('\n')
+}
 
 // count the number of repeated lines
+
+newData = new Array(...new Set(data.split('\n').map((str) => str !== '' ? str : undefined).filter(Boolean)));
 
 const countMap = new Map();
 
@@ -65,8 +100,12 @@ if (inputArgs.includes('unique')) {
     }).filter(Boolean)
 }
 
+
 const outputData = String(newData.join('\n'))
 
 console.log(outputData)
 
-fs.writeFileSync(path.join(__dirname, 'output.txt'), outputData)
+const homeDir = require('os').homedir();
+const desktop =path.join(homeDir, 'Desktop'); 
+
+fs.writeFileSync(path.join(desktop, 'output.txt'), outputData)
