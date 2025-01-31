@@ -15,7 +15,7 @@ int main()
         switch (choice)
         {
         case 1:
-            printf("Create An Account\n");
+            createAccount();
             break;
         case 2:
             printf("Deposite The Money\n");
