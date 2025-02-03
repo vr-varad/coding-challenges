@@ -27,18 +27,3 @@ int getche(void)
     tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);
     return ch;
 }
-
-char *generateAccountNumber()
-{
-    const char charset[] = "QWERTYUIOPLKJHGFDSAZXCVBNMmnbvcxzasdfghjklpoiuytrewq1234567890";
-    size_t charset_size = sizeof(charset) - 1;
-    char *acc_number = malloc(LENGTH + 1);
-
-    for (int i = 0; i < LENGTH; i++)
-    {
-        acc_number[i] = charset[rand() % charset_size];
-    }
-    acc_number[LENGTH] = '\0';
-
-    return acc_number;
-}

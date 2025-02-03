@@ -24,7 +24,7 @@ int main()
             printf("Withdraw The Money\n");
             break;
         case 4:
-            printf("Check The Balance\n");
+            checkBalance();
             break;
         case 5:
             printf("View Transaction History\n");

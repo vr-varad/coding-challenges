@@ -1,0 +1,64 @@
+version: "3"
+
+services:
+    shard1:
+        image: pgshard
+        environment:
+            POSTGRES_DB: shard1
+            POSTGRES_USER: shard1
+            POSTGRES_PASSWORD: shard1
+        ports:
+            - "5433:5432"
+        volumes:
+            - shard1_data:/var/lib/postgresql/data
+        networks:
+            - postgres-net
+
+    shard2:
+        image: pgshard
+        environment:
+            POSTGRES_DB: shard2
+            POSTGRES_USER: shard2
+            POSTGRES_PASSWORD: shard2
+        ports:
+            - "5434:5432"
+        volumes:
+            - shard2_data:/var/lib/postgresql/data
+        networks:
+            - postgres-net
+
+    shard3:
+        image: pgshard
+        environment:
+            POSTGRES_DB: shard3
+            POSTGRES_USER: shard3
+            POSTGRES_PASSWORD: shard3
+        ports:
+            - "5435:5432"
+        volumes:
+            - shard3_data:/var/lib/postgresql/data
+        networks:
+            - postgres-net
+
+    pg-admin:
+        image: dpage/pgadmin4
+        environment:
+            PGADMIN_DEFAULT_EMAIL: root@gmail.com
+            PGADMIN_DEFAULT_PASSWORD: user
+        ports:
+            - "5050:80"
+        depends_on:
+            - shard1
+            - shard2
+            - shard3
+        networks:
+            - postgres-net
+    
+volumes:
+    shard1_data:
+    shard2_data:
+    shard3_data:
+
+networks:
+    postgres-net:
+        driver: bridge
